@@ -18,7 +18,15 @@ public class UserInfo
 
     public void updateEmails(Email email)
     {
-        this.emails.add(0, email);
+        if (this.emails.size() == 0)
+        {
+            emails = new ArrayList<>();
+            this.emails.add(email);
+        }
+        else
+        {
+            this.emails.add(0, email);
+        }
     }
 
     public void printEmails() // *** This method x work. Also throws a null pointer exception

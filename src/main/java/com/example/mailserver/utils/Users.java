@@ -9,11 +9,11 @@ import java.util.UUID;
 @Data
 public class Users
 {
-    public HashMap<String, UserInfo> userDatabase;
+    public final HashMap<String, UserInfo> userDatabase = new HashMap<>();
 
     public Users()
     {
-        this.userDatabase = new HashMap<>();
+        //this.userDatabase = new HashMap<>();
 
         //Creating some fake entries for testing purposes
         userDatabase.put("DevorahLevi", UserInfo

@@ -1,6 +1,7 @@
 package com.example.mailserver.service;
 
 import com.example.mailserver.model.Email;
+import com.example.mailserver.model.UIEmail;
 import com.example.mailserver.model.UserInfo;
 import com.example.mailserver.utils.Users;
 import lombok.RequiredArgsConstructor;
@@ -9,21 +10,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class MailServerService
 {
-    public Users users = new Users();
-    public HashMap<String, UserInfo> userDatabase = users.getUserDatabase();
+    private Users users = new Users();
+    private HashMap<String, UserInfo> userDatabase = users.getUserDatabase();
 
-
-    public ResponseEntity<String> inboxLogin(UserInfo userInfo)
+    public Object inboxLogin(UserInfo userInfo)
     {
         return inboxLogin(userInfo.getUserName(), userInfo.getPassword());
     }
 
-    public ResponseEntity<String> inboxLogin(String userName, String password)
+    public Object inboxLogin(String userName, String password)
     {
         ResponseEntity<String> responseEntity;
 
@@ -44,18 +45,23 @@ public class MailServerService
 
 
 
-    public String sendEmail(Email email)
+    public String sendEmail(UIEmail tempEmail)
     {
-        return sendEmail(email, email.getTo());
+        return sendEmail(tempEmail.getFrom(), tempEmail.getTo(), tempEmail.getMessage());
     }
 
-    public String sendEmail(Email email, String recipient)
+    public String sendEmail(String sender, String recipient, String message)
     {
         String emailSent;
         if (userDatabase.containsKey(recipient))
         {
             UserInfo recipientObject = userDatabase.get(recipient);
-            recipientObject.updateEmails(email); //**Throwing null pointer exception error
+            UUID recipientUUID = recipientObject.getPrimaryKey();
+            recipientObject.updateEmails(Email.builder()
+                                        .from(UUID.fromString(sender))
+                                        .to(recipientUUID)
+                                        .message(message)
+                                        .build()); //**Throwing null pointer exception error
             emailSent = "Hooray! Your email has been sent to " + recipient;
 
         } else {

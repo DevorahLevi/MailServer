@@ -1,10 +1,10 @@
 package com.example.mailserver.controller;
 
 import com.example.mailserver.model.Email;
+import com.example.mailserver.model.UIEmail;
 import com.example.mailserver.model.UserInfo;
 import com.example.mailserver.service.MailServerService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,14 +14,14 @@ public class MailServerController
 {
     private final MailServerService mailServerService;
 
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody UserInfo userInfo)
+    @PostMapping("/email/login")
+    public Object login(@RequestBody UserInfo userInfo)
     {
         return mailServerService.inboxLogin(userInfo);
     }
 
     @PostMapping("/email/send")
-    public String sendEmail(@RequestBody Email email)
+    public String sendEmail(@RequestBody UIEmail email)
     {
         return mailServerService.sendEmail(email);
     }

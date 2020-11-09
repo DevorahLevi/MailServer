@@ -9,10 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -75,18 +72,19 @@ public class MailServerService
         return emailSent;
     }
 
-/*
-    public String checkInbox(String primaryKey)
+
+    public ArrayList<Email> checkInbox(String primaryKey)
     {
-        // find the correct UserInfo object assoc. with and then respond with the primary key as the key and the value should be emails arraylist
-        return null;
+        UserInfo userObject = userDatabase.get(UUID.fromString(primaryKey));
+        return userObject.getEmailInbox();
     }
 
+
+    /*
     public String checkOutbox(String primaryKey)
     {
         return null;
     }
-
  */
 
     public UUID checkUserNameExists(String userName)

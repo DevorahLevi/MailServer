@@ -1,14 +1,17 @@
 package com.example.mailserver.controller;
 
+import com.example.mailserver.model.Email;
 import com.example.mailserver.model.UIEmail;
 import com.example.mailserver.model.UserInfo;
 import com.example.mailserver.service.MailServerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+
 @RestController
-@RequestMapping("api/v1/email")
 @RequiredArgsConstructor
+@RequestMapping("api/v1/email")
 public class MailServerController
 {
     private final MailServerService mailServerService;
@@ -25,13 +28,13 @@ public class MailServerController
         return mailServerService.sendEmail(email);
     }
 
-    /*
+    @ResponseBody
     @PostMapping("/inbox")
-    public String checkInbox(@RequestBody String primaryKey)
+    public ArrayList<Email> checkInbox(@RequestBody String primaryKey)
     {
         return mailServerService.checkInbox(primaryKey);
     }
-
+/*
     @PostMapping("/send")
     public String checkOutbox(@RequestBody String primaryKey)
     {

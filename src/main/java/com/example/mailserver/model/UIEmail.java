@@ -7,7 +7,7 @@ import lombok.Data;
 @Builder
 public class UIEmail
 {
-    private String from;
-    private String to;
-    private String message;
+    private String from;        // UUID in string form of sender
+    private String to;          // userName of recipient
+    private String message;     // message content
 }

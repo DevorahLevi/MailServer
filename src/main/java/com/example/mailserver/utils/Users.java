@@ -13,33 +13,10 @@ public class Users
 
     public Users()
     {
-        //this.userDatabase = new HashMap<>();
-
         //Creating some fake entries for testing purposes
-        userDatabase.put("DevorahLevi", UserInfo
-                .builder()
-                .userName("DevorahLevi")
-                .password("password1")
-                .primaryKey(UUID.randomUUID())
-                .build());
-
-        userDatabase.put("NechamaLevi", UserInfo
-                .builder()
-                .userName("NechamaLevi")
-                .password("password2")
-                .primaryKey(UUID.randomUUID())
-                .build());
-
-        userDatabase.put("YehudaLevi", UserInfo
-                .builder().userName("YehudaLevi")
-                .password("password3")
-                .primaryKey(UUID.randomUUID())
-                .build());
-
-        userDatabase.put("MordechaiLevi", UserInfo
-                .builder().userName("MordechaiLevi")
-                .password("password4")
-                .primaryKey(UUID.randomUUID())
-                .build());
+        userDatabase.put("DevorahLevi", new UserInfo("DevorahLevi", "password1", UUID.randomUUID()));
+        userDatabase.put("NechamaLevi", new UserInfo("NechamaLevi", "password2", UUID.randomUUID()));
+        userDatabase.put("YehudaLevi", new UserInfo("YehudaLevi", "password3", UUID.randomUUID()));
+        userDatabase.put("MordechaiLevi", new UserInfo("MordechaiLevi", "password4", UUID.randomUUID()));
     }
 }

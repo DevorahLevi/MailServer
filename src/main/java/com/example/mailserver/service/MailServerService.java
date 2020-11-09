@@ -61,9 +61,8 @@ public class MailServerService
                                         .from(UUID.fromString(sender))
                                         .to(recipientUUID)
                                         .message(message)
-                                        .build()); //**Throwing null pointer exception error
+                                        .build());
             emailSent = "Hooray! Your email has been sent to " + recipient;
-
         } else {
             emailSent = "Sorry, you are trying to send a message to an email that does not exist. Please enter the correct recipient.";
         }

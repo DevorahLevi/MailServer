@@ -1,6 +1,5 @@
 package com.example.mailserver.controller;
 
-import com.example.mailserver.model.Email;
 import com.example.mailserver.model.UIEmail;
 import com.example.mailserver.model.UserInfo;
 import com.example.mailserver.service.MailServerService;

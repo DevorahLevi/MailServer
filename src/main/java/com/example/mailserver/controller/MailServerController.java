@@ -1,8 +1,6 @@
 package com.example.mailserver.controller;
 
-import com.example.mailserver.model.Email;
-import com.example.mailserver.model.UIEmail;
-import com.example.mailserver.model.UserInfo;
+import com.example.mailserver.model.*;
 import com.example.mailserver.service.MailServerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -30,9 +28,9 @@ public class MailServerController
 
     @ResponseBody
     @PostMapping("/inbox")
-    public ArrayList<Email> checkInbox(@RequestBody String primaryKey)
+    public ArrayList<DisplayInboxEmail> checkInbox(@RequestBody GetUUID primaryKey)
     {
-        return mailServerService.checkInbox(primaryKey);
+        return mailServerService.checkInbox(primaryKey.getPrimaryKey());
     }
 /*
     @PostMapping("/send")

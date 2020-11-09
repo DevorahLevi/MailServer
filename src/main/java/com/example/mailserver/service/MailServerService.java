@@ -1,8 +1,6 @@
 package com.example.mailserver.service;
 
-import com.example.mailserver.model.Email;
-import com.example.mailserver.model.UIEmail;
-import com.example.mailserver.model.UserInfo;
+import com.example.mailserver.model.*;
 import com.example.mailserver.utils.Users;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -50,18 +48,17 @@ public class MailServerService
         return sendEmail(tempEmail.getFrom(), tempEmail.getTo(), tempEmail.getMessage());
     }
 
-    public String sendEmail(String sender, String recipient, String message)
+    public String sendEmail(UUID sender, String recipient, String message)
     {
         String emailSent;
         UUID recipientUUID = checkUserNameExists(recipient);
-        UUID senderUUID = UUID.fromString(sender);
 
         if (recipientUUID != null)
         {
             UserInfo recipientObject = userDatabase.get(recipientUUID);
-            UserInfo senderObject = userDatabase.get(senderUUID);
+            UserInfo senderObject = userDatabase.get(sender);
 
-            Email email = Email.builder().from(senderUUID).to(recipientUUID).message(message).build();
+            Email email = Email.builder().from(sender).to(recipientUUID).message(message).build();
             recipientObject.updateEmails(email,"inbox");
             senderObject.updateEmails(email, "outbox");
 
@@ -73,10 +70,24 @@ public class MailServerService
     }
 
 
-    public ArrayList<Email> checkInbox(String primaryKey)
+    public ArrayList<DisplayInboxEmail> checkInbox(UUID primaryKey)
     {
-        UserInfo userObject = userDatabase.get(UUID.fromString(primaryKey));
-        return userObject.getEmailInbox();
+        UserInfo userObject = userDatabase.get(primaryKey);
+        ArrayList<Email> emailInbox = userObject.getEmailInbox();
+
+        ArrayList<DisplayInboxEmail> emailDisplay = new ArrayList<>();
+
+        Iterator iterator = emailInbox.iterator();
+        while (iterator.hasNext())
+        {
+            Email tempEmail = (Email)iterator.next();
+            emailDisplay.add(DisplayInboxEmail.builder()
+                                            .from(userDatabase.get(tempEmail.getFrom()).getUserName())
+                                            .message(tempEmail.getMessage())
+                                            .build());
+        }
+
+        return emailDisplay;
     }
 
 

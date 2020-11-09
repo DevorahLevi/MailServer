@@ -7,21 +7,34 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/v1")
+@RequestMapping("api/v1/email")
 @RequiredArgsConstructor
 public class MailServerController
 {
     private final MailServerService mailServerService;
 
-    @PostMapping("/email/login")
+    @PostMapping("/login")
     public Object login(@RequestBody UserInfo userInfo)
     {
         return mailServerService.inboxLogin(userInfo);
     }
 
-    @PostMapping("/email/send")
+    @PostMapping("/send")
     public String sendEmail(@RequestBody UIEmail email)
     {
         return mailServerService.sendEmail(email);
     }
+
+    /*
+    @PostMapping("/inbox")
+    public String checkInbox(@RequestBody String primaryKey)
+    {
+        return mailServerService.checkInbox(primaryKey);
+    }
+
+    @PostMapping("/send")
+    public String checkOutbox(@RequestBody String primaryKey)
+    {
+        return mailServerService.checkOutbox(primaryKey);
+    } */
 }

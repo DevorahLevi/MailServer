@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -17,7 +19,7 @@ import java.util.UUID;
 public class MailServerService
 {
     private Users users = new Users();
-    private HashMap<String, UserInfo> userDatabase = users.getUserDatabase();
+    private HashMap<UUID, UserInfo> userDatabase = users.getUserDatabase();
 
     public Object inboxLogin(UserInfo userInfo)
     {
@@ -27,10 +29,11 @@ public class MailServerService
     public Object inboxLogin(String userName, String password)
     {
         ResponseEntity<String> responseEntity;
+        UUID userUUID = checkUserNameExists(userName);
 
-        if (userDatabase.containsKey(userName)) {
-            if(password.equals(userDatabase.get(userName).getPassword())) {
-                responseEntity = new ResponseEntity<>(userDatabase.get(userName).getPrimaryKey().toString(), HttpStatus.OK);
+        if (userUUID != null) {
+            if(password.equals(userDatabase.get(userUUID).getPassword())) {
+                responseEntity = new ResponseEntity<>(userUUID.toString(), HttpStatus.OK);
             } else {
                 responseEntity = new ResponseEntity<>("Sorry, you have entered invalid credentials. Please try again.", HttpStatus.UNAUTHORIZED);
             }
@@ -53,20 +56,54 @@ public class MailServerService
     public String sendEmail(String sender, String recipient, String message)
     {
         String emailSent;
-        if (userDatabase.containsKey(recipient))
+        UUID recipientUUID = checkUserNameExists(recipient);
+        UUID senderUUID = UUID.fromString(sender);
+
+        if (recipientUUID != null)
         {
-            UserInfo recipientObject = userDatabase.get(recipient);
-            UUID recipientUUID = recipientObject.getPrimaryKey();
-            recipientObject.updateEmails(Email.builder()
-                                        .from(UUID.fromString(sender))
-                                        .to(recipientUUID)
-                                        .message(message)
-                                        .build());
+            UserInfo recipientObject = userDatabase.get(recipientUUID);
+            UserInfo senderObject = userDatabase.get(senderUUID);
+
+            Email email = Email.builder().from(senderUUID).to(recipientUUID).message(message).build();
+            recipientObject.updateEmails(email,"inbox");
+            senderObject.updateEmails(email, "outbox");
+
             emailSent = "Hooray! Your email has been sent to " + recipient;
         } else {
             emailSent = "Sorry, you are trying to send a message to an email that does not exist. Please enter the correct recipient.";
         }
         return emailSent;
+    }
+
+/*
+    public String checkInbox(String primaryKey)
+    {
+        // find the correct UserInfo object assoc. with and then respond with the primary key as the key and the value should be emails arraylist
+        return null;
+    }
+
+    public String checkOutbox(String primaryKey)
+    {
+        return null;
+    }
+
+ */
+
+    public UUID checkUserNameExists(String userName)
+    {
+        UUID userPrimaryKey = null;
+        Iterator userDatabaseIterator = userDatabase.entrySet().iterator();
+
+        while (userDatabaseIterator.hasNext())
+        {
+            Map.Entry mapElement = (Map.Entry)userDatabaseIterator.next();
+            UserInfo tempUserInfo = (UserInfo) mapElement.getValue();
+            if (userName.equals(tempUserInfo.getUserName()))
+            {
+                userPrimaryKey = (UUID)mapElement.getKey();
+            }
+        }
+        return userPrimaryKey;
     }
 
 }

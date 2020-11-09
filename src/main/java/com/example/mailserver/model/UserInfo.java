@@ -3,39 +3,47 @@ package com.example.mailserver.model;
 import lombok.Data;
 
 import java.util.ArrayList;
-import java.util.UUID;
 
 @Data
 public class UserInfo
 {
     private String userName;
     private String password;
-    private UUID primaryKey;
-    private ArrayList<Email> emails;
+    private ArrayList<Email> emailInbox;
+    private ArrayList<Email> emailOutbox;
 
-    public UserInfo(String userName, String password, UUID primaryKey)
+    public UserInfo(String userName, String password)
     {
         this.userName = userName;
         this.password = password;
-        this.primaryKey = primaryKey;
-        emails = new ArrayList<>();
+        emailInbox = new ArrayList<>();
+        emailOutbox = new ArrayList<>();
     }
 
-    public void updateEmails(Email email)
+    public void updateEmails(Email email, String inboxOrOutbox)
     {
-        this.emails.add(0, email);
-    }
-
-    public void printEmails()
-    {
-        if (this.emails.isEmpty())
-        {
-            System.out.println("No current emails.");
+        if (inboxOrOutbox.equalsIgnoreCase("inbox")) {
+            this.emailInbox.add(0, email);
+        } else {
+            this.emailOutbox.add(0, email);
         }
-        else
-        {
+    }
+
+    public void printEmails(String inboxOrOutbox) {
+        if (inboxOrOutbox.equalsIgnoreCase("inbox")) {
+            printEmails(this.emailInbox);
+        } else {
+            printEmails(this.emailOutbox);
+        }
+    }
+
+    private void printEmails(ArrayList<Email> emailList)
+    {
+        if (emailList.isEmpty()) {
+            System.out.println("No current emails.");
+        } else {
             int count = 0;
-            for (Email email : this.emails) {
+            for (Email email : emailList) {
                 System.out.println("Email" + count + " = " + email.toString());
                 count += 1;
             }

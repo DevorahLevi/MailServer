@@ -16,6 +16,7 @@ public class MailServerService
     private Users users = new Users();
     private HashMap<UUID, UserInfo> userDatabase = users.getUserDatabase();
 
+
     public Object inboxLogin(UserInfo userInfo)
     {
         return inboxLogin(userInfo.getUserName(), userInfo.getPassword());
@@ -39,7 +40,6 @@ public class MailServerService
 
         return responseEntity;
     }
-
 
 
 
@@ -70,6 +70,26 @@ public class MailServerService
     }
 
 
+
+    private UUID checkUserNameExists(String userName)
+    {
+        UUID userPrimaryKey = null;
+        Iterator userDatabaseIterator = userDatabase.entrySet().iterator();
+
+        while (userDatabaseIterator.hasNext())
+        {
+            Map.Entry mapElement = (Map.Entry)userDatabaseIterator.next();
+            UserInfo tempUserInfo = (UserInfo) mapElement.getValue();
+            if (userName.equals(tempUserInfo.getUserName()))
+            {
+                userPrimaryKey = (UUID)mapElement.getKey();
+            }
+        }
+        return userPrimaryKey;
+    }
+
+
+
     public ArrayList<DisplayInboxEmail> checkInbox(UUID primaryKey)
     {
         UserInfo userObject = userDatabase.get(primaryKey);
@@ -91,28 +111,25 @@ public class MailServerService
     }
 
 
-    /*
-    public String checkOutbox(String primaryKey)
-    {
-        return null;
-    }
- */
 
-    public UUID checkUserNameExists(String userName)
+    public ArrayList<DisplayOutboxEmail> checkOutbox(UUID primaryKey)
     {
-        UUID userPrimaryKey = null;
-        Iterator userDatabaseIterator = userDatabase.entrySet().iterator();
+        UserInfo userObject = userDatabase.get(primaryKey);
+        ArrayList<Email> emailInbox = userObject.getEmailOutbox();
 
-        while (userDatabaseIterator.hasNext())
+        ArrayList<DisplayOutboxEmail> emailDisplay = new ArrayList<>();
+
+        Iterator iterator = emailInbox.iterator();
+        while (iterator.hasNext())
         {
-            Map.Entry mapElement = (Map.Entry)userDatabaseIterator.next();
-            UserInfo tempUserInfo = (UserInfo) mapElement.getValue();
-            if (userName.equals(tempUserInfo.getUserName()))
-            {
-                userPrimaryKey = (UUID)mapElement.getKey();
-            }
+            Email tempEmail = (Email)iterator.next();
+            emailDisplay.add(DisplayOutboxEmail.builder()
+                                            .to(userDatabase.get(tempEmail.getTo()).getUserName())
+                                            .message(tempEmail.getMessage())
+                                            .build());
         }
-        return userPrimaryKey;
+
+        return emailDisplay;
     }
 
 }

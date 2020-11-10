@@ -32,10 +32,11 @@ public class MailServerController
     {
         return mailServerService.checkInbox(primaryKey.getPrimaryKey());
     }
-/*
-    @PostMapping("/send")
-    public String checkOutbox(@RequestBody String primaryKey)
+
+    @ResponseBody
+    @PostMapping("/outbox")
+    public ArrayList<DisplayOutboxEmail> checkOutbox(@RequestBody GetUUID primaryKey)
     {
-        return mailServerService.checkOutbox(primaryKey);
-    } */
+        return mailServerService.checkOutbox(primaryKey.getPrimaryKey());
+    }
 }

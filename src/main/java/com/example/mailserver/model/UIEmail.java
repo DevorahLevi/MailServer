@@ -9,7 +9,7 @@ import java.util.UUID;
 @Builder
 public class UIEmail
 {
-    private UUID from;        // UUID of sender
+    private UUID from;          // UUID of sender
     private String to;          // userName of recipient
     private String message;     // message content
 }

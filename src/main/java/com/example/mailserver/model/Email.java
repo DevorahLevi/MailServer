@@ -9,7 +9,7 @@ import java.util.UUID;
 @Builder
 public class Email
 {
-    private UUID from;      // Primary Key ID of sender
-    private UUID to;        // Primary Key ID of recipient
-    private String message; // Message content
+    private UUID from;          // Primary Key ID of sender
+    private UUID to;            // Primary Key ID of recipient
+    private String message;     // Message content
 }

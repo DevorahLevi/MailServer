@@ -1,0 +1,13 @@
+# Tabs are important. They imply nested calls. i.e. port is server.port
+# sever.port is something that spring knows to look for. Not there without Spring. Default server.port is 8080
+
+server:
+  port: 8080
+
+mail:
+  external:
+    ip: 192.168.0.1
+
+# featureswitch allows you to boot your app very quickly
+featureswitch:
+  printIp: true

@@ -1,6 +1,7 @@
 package com.example.mailserver.service;
 
 import com.example.mailserver.model.*;
+import com.example.mailserver.utils.ExternalUsers;
 import com.example.mailserver.utils.Users;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ public class MailServerService
 {
     private Users users = new Users();
     private HashMap<UUID, UserInfo> userDatabase = users.getUserDatabase();
+
 
 
     public Object inboxLogin(UserInfo userInfo)
@@ -63,7 +65,7 @@ public class MailServerService
             senderObject.updateEmails(email, "outbox");
 
             emailSent = "Hooray! Your email has been sent to " + recipient;
-        } else {
+        } else { // ***** add a check to see if it can be sent externally. if not, than display emailSent invalid email error message
             emailSent = "Sorry, you are trying to send a message to an email that does not exist. Please enter the correct recipient.";
         }
         return emailSent;
@@ -101,13 +103,41 @@ public class MailServerService
         while (iterator.hasNext())
         {
             Email tempEmail = (Email)iterator.next();
-            emailDisplay.add(DisplayInboxEmail.builder()
-                                            .from(userDatabase.get(tempEmail.getFrom()).getUserName())
-                                            .message(tempEmail.getMessage())
-                                            .build());
+
+            if (ExternalUsers.externalUserDatabase.containsValue(tempEmail.getFrom()))
+            {
+                String externalUserUUID = getExternalUserName(tempEmail.getFrom());
+                emailDisplay.add(DisplayInboxEmail.builder()
+                        .from(externalUserUUID)
+                        .message(tempEmail.getMessage())
+                        .build());
+            }
+            else
+            {
+                emailDisplay.add(DisplayInboxEmail.builder()
+                        .from(userDatabase.get(tempEmail.getFrom()).getUserName())
+                        .message(tempEmail.getMessage())
+                        .build());
+            }
         }
 
         return emailDisplay;
+    }
+
+    private String getExternalUserName(UUID externalUserUUID)
+    {
+        String userName = null;
+        Iterator externalUserDatabaseIterator = ExternalUsers.externalUserDatabase.entrySet().iterator();
+        while (externalUserDatabaseIterator.hasNext())
+        {
+            Map.Entry mapElement = (Map.Entry)externalUserDatabaseIterator.next();
+            UUID tempUUID = (UUID) mapElement.getValue();
+            if (tempUUID.equals(externalUserUUID))
+            {
+                userName = (String) mapElement.getKey();;
+            }
+        }
+        return userName;
     }
 
 
@@ -130,6 +160,38 @@ public class MailServerService
         }
 
         return emailDisplay;
+    }
+
+
+
+    public Object receiveExternalMail(ExternalEmail externalEmail)
+    {
+        return receiveExternalMail(externalEmail.getFrom(), externalEmail.getTo(), externalEmail.getMessage());
+    }
+
+    public Object receiveExternalMail(String sender, String recipient, String message)
+    {
+        ResponseEntity<String> responseEntity;
+        UUID recipientUUID = checkUserNameExists(recipient); // check if recipient exists on our server
+
+        if (recipientUUID != null) //recipient exists, then
+        {
+            if (!ExternalUsers.externalUserDatabase.containsKey(sender)) {
+                ExternalUsers.externalUserDatabase.put(sender, UUID.randomUUID());
+            }
+            UUID senderUUID = ExternalUsers.externalUserDatabase.get(sender);
+            UserInfo recipientObject = userDatabase.get(recipientUUID);
+            Email email = Email.builder().from(senderUUID).to(recipientUUID).message(message).build();
+            recipientObject.updateEmails(email,"inbox");
+
+            responseEntity = new ResponseEntity<>("Hooray! Your email has been received from an external server!", HttpStatus.OK);
+        }
+        else
+        {
+            responseEntity = new ResponseEntity<>("Sorry, the user that you are trying to send an email to does not exist.",
+                                                    HttpStatus.BAD_REQUEST);
+        }
+        return responseEntity;
     }
 
 }

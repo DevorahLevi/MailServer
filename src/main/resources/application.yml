@@ -9,5 +9,11 @@ mail:
     ip: 192.168.0.1
 
 # featureswitch allows you to boot your app very quickly
-featureswitch:
-  printIp: true
+#featureswitch:
+#  printIp: true
+
+feature-switch:
+  receive-external-mail:
+    receive-external-mail-on: true
+  send-external-mail:
+    sen-external-mail-on: true

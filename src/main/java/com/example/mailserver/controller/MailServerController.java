@@ -1,7 +1,7 @@
 package com.example.mailserver.controller;
 
 import com.example.mailserver.config.ExternalMailConfiguration;
-import com.example.mailserver.config.FeatureSwitchConfiguration;
+import com.example.mailserver.config.FeatureSwitchSendExternalMailConfiguration;
 import com.example.mailserver.model.*;
 import com.example.mailserver.service.MailServerService;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ public class MailServerController
 
     // Testing Config files and environment variables
     private final ExternalMailConfiguration externalMailConfiguration;
-    private final FeatureSwitchConfiguration featureSwitchConfiguration;
+    private final FeatureSwitchSendExternalMailConfiguration featureSwitchSendExternalMailConfiguration;
 
     @PostMapping("/login")
     public Object login(@RequestBody UserInfo userInfo)
@@ -51,4 +51,18 @@ public class MailServerController
     {
         return mailServerService.checkOutbox(primaryKey.getPrimaryKey());
     }
+
+    @PostMapping("/receiveExternalMail")
+    public Object receiveExternalMail(@RequestBody ExternalEmail externalEmail)
+    {
+        return mailServerService.receiveExternalMail(externalEmail);
+    }
 }
+
+/*
+Homework Assignment:
+API endpoint that can receive external mail and puts it into the correct person's inbox
+Send function (might not need a new endpoint), just needs to have awareness that if the 'to' is not in your local users, you have to send it externally
+(IP) Address of external server must be in the configurations
+Ability to send externally must have a feature switch around it to turn it on or off
+ */

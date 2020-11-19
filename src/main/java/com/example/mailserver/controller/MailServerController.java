@@ -1,6 +1,7 @@
 package com.example.mailserver.controller;
 
 import com.example.mailserver.config.ExternalMailConfiguration;
+import com.example.mailserver.config.FeatureSwitchReceiveExternalMailConfiguration;
 import com.example.mailserver.config.FeatureSwitchSendExternalMailConfiguration;
 import com.example.mailserver.model.*;
 import com.example.mailserver.service.MailServerService;
@@ -17,8 +18,7 @@ public class MailServerController
     private final MailServerService mailServerService;
 
     // Testing Config files and environment variables
-    private final ExternalMailConfiguration externalMailConfiguration;
-    private final FeatureSwitchSendExternalMailConfiguration featureSwitchSendExternalMailConfiguration;
+//    private final ExternalMailConfiguration externalMailConfiguration;
 
     @PostMapping("/login")
     public Object login(@RequestBody UserInfo userInfo)

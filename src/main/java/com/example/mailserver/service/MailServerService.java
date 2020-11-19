@@ -1,5 +1,7 @@
 package com.example.mailserver.service;
 
+import com.example.mailserver.config.FeatureSwitchReceiveExternalMailConfiguration;
+import com.example.mailserver.config.FeatureSwitchSendExternalMailConfiguration;
 import com.example.mailserver.model.*;
 import com.example.mailserver.utils.ExternalUsers;
 import com.example.mailserver.utils.Users;
@@ -16,6 +18,9 @@ public class MailServerService
 {
     private Users users = new Users();
     private HashMap<UUID, UserInfo> userDatabase = users.getUserDatabase();
+
+    private final FeatureSwitchSendExternalMailConfiguration featureSwitchSendExternalMailConfiguration;
+    private final FeatureSwitchReceiveExternalMailConfiguration receiveExternalMailConfiguration;
 
 
 
@@ -166,31 +171,42 @@ public class MailServerService
 
     public Object receiveExternalMail(ExternalEmail externalEmail)
     {
+
         return receiveExternalMail(externalEmail.getFrom(), externalEmail.getTo(), externalEmail.getMessage());
     }
 
     public Object receiveExternalMail(String sender, String recipient, String message)
     {
         ResponseEntity<String> responseEntity;
-        UUID recipientUUID = checkUserNameExists(recipient); // check if recipient exists on our server
 
-        if (recipientUUID != null) //recipient exists, then
+        if (!receiveExternalMailConfiguration.isReceiveExternalMailOn())
         {
-            if (!ExternalUsers.externalUserDatabase.containsKey(sender)) {
-                ExternalUsers.externalUserDatabase.put(sender, UUID.randomUUID());
-            }
-            UUID senderUUID = ExternalUsers.externalUserDatabase.get(sender);
-            UserInfo recipientObject = userDatabase.get(recipientUUID);
-            Email email = Email.builder().from(senderUUID).to(recipientUUID).message(message).build();
-            recipientObject.updateEmails(email,"inbox");
-
-            responseEntity = new ResponseEntity<>("Hooray! Your email has been received from an external server!", HttpStatus.OK);
+            responseEntity = new ResponseEntity<>("Sorry, this service is not available right now. Please try again later.",
+                                                            HttpStatus.SERVICE_UNAVAILABLE);
         }
         else
         {
-            responseEntity = new ResponseEntity<>("Sorry, the user that you are trying to send an email to does not exist.",
-                                                    HttpStatus.BAD_REQUEST);
+            UUID recipientUUID = checkUserNameExists(recipient); // check if recipient exists on our server
+
+            if (recipientUUID != null) //recipient exists, then
+            {
+                if (!ExternalUsers.externalUserDatabase.containsKey(sender)) {
+                    ExternalUsers.externalUserDatabase.put(sender, UUID.randomUUID());
+                }
+                UUID senderUUID = ExternalUsers.externalUserDatabase.get(sender);
+                UserInfo recipientObject = userDatabase.get(recipientUUID);
+                Email email = Email.builder().from(senderUUID).to(recipientUUID).message(message).build();
+                recipientObject.updateEmails(email,"inbox");
+
+                responseEntity = new ResponseEntity<>("Hooray! Your email has been received from an external server!", HttpStatus.OK);
+            }
+            else
+            {
+                responseEntity = new ResponseEntity<>("Sorry, the user that you are trying to send an email to does not exist.",
+                        HttpStatus.BAD_REQUEST);
+            }
         }
+
         return responseEntity;
     }
 

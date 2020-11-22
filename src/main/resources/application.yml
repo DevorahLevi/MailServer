@@ -1,19 +1,18 @@
 # Tabs are important. They imply nested calls. i.e. port is server.port
 # sever.port is something that spring knows to look for. Not there without Spring. Default server.port is 8080
+# application files are good for being able to inject different variables into your code at runtime, instead of writing it into your code
 
 server:
   port: 8080
 
 mail:
   external:
-    ip: 192.168.0.1
+    ip: "https://ti-timeserver.herokuapp.com/api/v1/email/receiveExternalMail"
+    apiKey: "letMeIn"
 
-# featureswitch allows you to boot your app very quickly
-#featureswitch:
-#  printIp: true
-
+# allows you to boot your app very quickly and turn on/off different features without having to rebuild your app - only need to reboot
 feature-switch:
   receive-external-mail:
     receive-external-mail-on: true
   send-external-mail:
-    sen-external-mail-on: true
+    send-external-mail-on: true

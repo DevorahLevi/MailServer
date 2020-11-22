@@ -1,14 +1,16 @@
 package com.example.mailserver.service;
 
+import com.example.mailserver.config.ExternalMailConfiguration;
 import com.example.mailserver.config.FeatureSwitchReceiveExternalMailConfiguration;
 import com.example.mailserver.config.FeatureSwitchSendExternalMailConfiguration;
 import com.example.mailserver.model.*;
 import com.example.mailserver.utils.ExternalUsers;
 import com.example.mailserver.utils.Users;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 
@@ -21,8 +23,9 @@ public class MailServerService
 
     private final FeatureSwitchSendExternalMailConfiguration featureSwitchSendExternalMailConfiguration;
     private final FeatureSwitchReceiveExternalMailConfiguration receiveExternalMailConfiguration;
+    private final ExternalMailConfiguration externalMailConfiguration;
 
-
+    private final RestTemplate restTemplate;
 
     public Object inboxLogin(UserInfo userInfo)
     {
@@ -50,18 +53,18 @@ public class MailServerService
 
 
 
-    public String sendEmail(UIEmail tempEmail)
+    public ResponseEntity<String> sendEmail(UIEmail tempEmail)
     {
         return sendEmail(tempEmail.getFrom(), tempEmail.getTo(), tempEmail.getMessage());
     }
 
-    public String sendEmail(UUID sender, String recipient, String message)
+    public ResponseEntity<String> sendEmail(UUID sender, String recipient, String message)
     {
-        String emailSent;
-        UUID recipientUUID = checkUserNameExists(recipient);
+        ResponseEntity<String> emailSent;
 
-        if (recipientUUID != null)
-        {
+        // String from = userDatabase.get(sender).getFrom().getUserName()
+        UUID recipientUUID = checkUserNameExists(recipient);
+        if (recipientUUID != null && userDatabase.containsKey(sender)) { // add condition that user exists: && (userDatabase.containsKey(sender)) and make sure that it still works.
             UserInfo recipientObject = userDatabase.get(recipientUUID);
             UserInfo senderObject = userDatabase.get(sender);
 
@@ -69,9 +72,28 @@ public class MailServerService
             recipientObject.updateEmails(email,"inbox");
             senderObject.updateEmails(email, "outbox");
 
-            emailSent = "Hooray! Your email has been sent to " + recipient;
-        } else { // ***** add a check to see if it can be sent externally. if not, than display emailSent invalid email error message
-            emailSent = "Sorry, you are trying to send a message to an email that does not exist. Please enter the correct recipient.";
+            emailSent = new ResponseEntity<>(("Hooray! Your email has been sent to " + recipient), HttpStatus.OK);
+        } else {
+            if(!featureSwitchSendExternalMailConfiguration.isSendExternalMailOn()) {
+                emailSent = new ResponseEntity<>(("Sorry, you are trying to send a message to an email that does not exist. " +
+                        "Please enter the correct recipient."), HttpStatus.SERVICE_UNAVAILABLE);
+            } else {
+                    ExternalEmail body = ExternalEmail.builder().from(userDatabase.get(sender).getUserName()).to(recipient).message(message).build();
+                    String headerValue = new String (Base64.getEncoder().encode(externalMailConfiguration.getApiKey().getBytes()));
+                    HttpHeaders headers = new HttpHeaders();
+                    headers.add("api-key", headerValue);
+                    HttpEntity<ExternalEmail> httpEntity = new HttpEntity<>(body, headers); // Http entity is equal to the body of the request
+
+                try {
+                    ResponseEntity<Void> response = restTemplate.exchange(externalMailConfiguration.getIp(), HttpMethod.POST, httpEntity, void.class); //use void.class if not expecting anything back
+                    emailSent = new ResponseEntity<>("Hooray! Your email has been sent to an external server!", HttpStatus.OK);
+                    // Add ability for it to appear in outbox
+                } catch (RestClientException e) {
+                    System.out.println(e.getMessage());
+                    emailSent = new ResponseEntity<>(("Sorry, you are trying to send a message to an email that does not exist. " +
+                            "Please enter the correct recipient. **didnt exist externally"), HttpStatus.BAD_REQUEST);
+                }
+            }
         }
         return emailSent;
     }
@@ -83,12 +105,10 @@ public class MailServerService
         UUID userPrimaryKey = null;
         Iterator userDatabaseIterator = userDatabase.entrySet().iterator();
 
-        while (userDatabaseIterator.hasNext())
-        {
+        while (userDatabaseIterator.hasNext()) {
             Map.Entry mapElement = (Map.Entry)userDatabaseIterator.next();
             UserInfo tempUserInfo = (UserInfo) mapElement.getValue();
-            if (userName.equals(tempUserInfo.getUserName()))
-            {
+            if (userName.equals(tempUserInfo.getUserName())) {
                 userPrimaryKey = (UUID)mapElement.getKey();
             }
         }
@@ -105,20 +125,16 @@ public class MailServerService
         ArrayList<DisplayInboxEmail> emailDisplay = new ArrayList<>();
 
         Iterator iterator = emailInbox.iterator();
-        while (iterator.hasNext())
-        {
+        while (iterator.hasNext()) {
             Email tempEmail = (Email)iterator.next();
 
-            if (ExternalUsers.externalUserDatabase.containsValue(tempEmail.getFrom()))
-            {
+            if (ExternalUsers.externalUserDatabase.containsValue(tempEmail.getFrom())) {
                 String externalUserUUID = getExternalUserName(tempEmail.getFrom());
                 emailDisplay.add(DisplayInboxEmail.builder()
                         .from(externalUserUUID)
                         .message(tempEmail.getMessage())
                         .build());
-            }
-            else
-            {
+            } else {
                 emailDisplay.add(DisplayInboxEmail.builder()
                         .from(userDatabase.get(tempEmail.getFrom()).getUserName())
                         .message(tempEmail.getMessage())
@@ -133,12 +149,10 @@ public class MailServerService
     {
         String userName = null;
         Iterator externalUserDatabaseIterator = ExternalUsers.externalUserDatabase.entrySet().iterator();
-        while (externalUserDatabaseIterator.hasNext())
-        {
+        while (externalUserDatabaseIterator.hasNext()) {
             Map.Entry mapElement = (Map.Entry)externalUserDatabaseIterator.next();
             UUID tempUUID = (UUID) mapElement.getValue();
-            if (tempUUID.equals(externalUserUUID))
-            {
+            if (tempUUID.equals(externalUserUUID)) {
                 userName = (String) mapElement.getKey();;
             }
         }
@@ -155,8 +169,7 @@ public class MailServerService
         ArrayList<DisplayOutboxEmail> emailDisplay = new ArrayList<>();
 
         Iterator iterator = emailInbox.iterator();
-        while (iterator.hasNext())
-        {
+        while (iterator.hasNext()) {
             Email tempEmail = (Email)iterator.next();
             emailDisplay.add(DisplayOutboxEmail.builder()
                                             .to(userDatabase.get(tempEmail.getTo()).getUserName())
@@ -169,27 +182,29 @@ public class MailServerService
 
 
 
-    public Object receiveExternalMail(ExternalEmail externalEmail)
+    public Object receiveExternalMail(ExternalEmail externalEmail, String keyValue) //check if header is equal to "letMeIn". call second method if yes, if not, throw error
     {
-
-        return receiveExternalMail(externalEmail.getFrom(), externalEmail.getTo(), externalEmail.getMessage());
+        String decodedHeader = new String (Base64.getDecoder().decode(keyValue));
+        if (decodedHeader.equals(externalMailConfiguration.getApiKey()))
+        {
+            return receiveExternalMail(externalEmail.getFrom(), externalEmail.getTo(), externalEmail.getMessage());
+        } else {
+            return new ResponseEntity<>("Sorry you have the wrong key and cannot be let in.", HttpStatus.UNAUTHORIZED);
+        }
     }
 
     public Object receiveExternalMail(String sender, String recipient, String message)
     {
         ResponseEntity<String> responseEntity;
 
-        if (!receiveExternalMailConfiguration.isReceiveExternalMailOn())
-        {
+        // ** note that for booleans with @Data, to retrieve, use: .is and not .get
+        if (!receiveExternalMailConfiguration.isReceiveExternalMailOn()) {
             responseEntity = new ResponseEntity<>("Sorry, this service is not available right now. Please try again later.",
                                                             HttpStatus.SERVICE_UNAVAILABLE);
-        }
-        else
-        {
+        } else {
             UUID recipientUUID = checkUserNameExists(recipient); // check if recipient exists on our server
 
-            if (recipientUUID != null) //recipient exists, then
-            {
+            if (recipientUUID != null) { //recipient exists, then
                 if (!ExternalUsers.externalUserDatabase.containsKey(sender)) {
                     ExternalUsers.externalUserDatabase.put(sender, UUID.randomUUID());
                 }
@@ -199,14 +214,11 @@ public class MailServerService
                 recipientObject.updateEmails(email,"inbox");
 
                 responseEntity = new ResponseEntity<>("Hooray! Your email has been received from an external server!", HttpStatus.OK);
-            }
-            else
-            {
+            } else {
                 responseEntity = new ResponseEntity<>("Sorry, the user that you are trying to send an email to does not exist.",
                         HttpStatus.BAD_REQUEST);
             }
         }
-
         return responseEntity;
     }
 

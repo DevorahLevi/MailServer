@@ -12,4 +12,5 @@ import org.springframework.context.annotation.Configuration;
 public class ExternalMailConfiguration
 {
     private String ip; //have to call this the same as what you call it in your applications.yml file
+    private String apiKey;
 }

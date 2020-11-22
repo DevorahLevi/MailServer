@@ -9,7 +9,7 @@ import org.springframework.web.client.RestTemplate;
 public class MailServerApplication
 {
 	@Bean
-	public RestTemplate restTemplate() { return new RestTemplate(); }
+	public RestTemplate getRestTemplate() { return new RestTemplate(); }
 
 	public static void main(String[] args) {
 		SpringApplication.run(MailServerApplication.class, args);

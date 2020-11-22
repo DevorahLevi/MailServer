@@ -1,6 +1,5 @@
 package com.example.mailserver.utils;
 
-import com.example.mailserver.model.UserInfo;
 import lombok.Data;
 
 import java.util.HashMap;

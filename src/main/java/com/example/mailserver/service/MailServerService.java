@@ -43,11 +43,9 @@ public class MailServerService
             } else {
                 responseEntity = new ResponseEntity<>("Sorry, you have entered invalid credentials. Please try again.", HttpStatus.UNAUTHORIZED);
             }
-
         } else {
             responseEntity = new ResponseEntity<>("Sorry, these credentials are not registered. Please make an account and try again.", HttpStatus.UNAUTHORIZED);
         }
-
         return responseEntity;
     }
 
@@ -85,11 +83,9 @@ public class MailServerService
                     HttpEntity<ExternalEmail> httpEntity = new HttpEntity<>(body, headers); // Http entity is equal to the body of the request
 
                 try {
-                    ResponseEntity<Void> response = restTemplate.exchange(externalMailConfiguration.getIp(), HttpMethod.POST, httpEntity, void.class); //use void.class if not expecting anything back
+                    ResponseEntity<Void> response = restTemplate.exchange(externalMailConfiguration.getIp(), HttpMethod.POST, httpEntity, Void.class); //use Void.class if not expecting anything back
                     emailSent = new ResponseEntity<>("Hooray! Your email has been sent to an external server!", HttpStatus.OK);
-                    // Add ability for it to appear in outbox
                 } catch (RestClientException e) {
-                    System.out.println(e.getMessage());
                     emailSent = new ResponseEntity<>(("Sorry, you are trying to send a message to an email that does not exist. " +
                             "Please enter the correct recipient. **didnt exist externally"), HttpStatus.BAD_REQUEST);
                 }
@@ -176,7 +172,6 @@ public class MailServerService
                                             .message(tempEmail.getMessage())
                                             .build());
         }
-
         return emailDisplay;
     }
 
@@ -221,5 +216,4 @@ public class MailServerService
         }
         return responseEntity;
     }
-
 }

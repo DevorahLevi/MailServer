@@ -60,9 +60,8 @@ public class MailServerService
     {
         ResponseEntity<String> emailSent;
 
-        // String from = userDatabase.get(sender).getFrom().getUserName()
         UUID recipientUUID = checkUserNameExists(recipient);
-        if (recipientUUID != null && userDatabase.containsKey(sender)) { // add condition that user exists: && (userDatabase.containsKey(sender)) and make sure that it still works.
+        if (recipientUUID != null && userDatabase.containsKey(sender)) {
             UserInfo recipientObject = userDatabase.get(recipientUUID);
             UserInfo senderObject = userDatabase.get(sender);
 
@@ -87,7 +86,7 @@ public class MailServerService
                     emailSent = new ResponseEntity<>("Hooray! Your email has been sent to an external server!", HttpStatus.OK);
                 } catch (RestClientException e) {
                     emailSent = new ResponseEntity<>(("Sorry, you are trying to send a message to an email that does not exist. " +
-                            "Please enter the correct recipient. **didnt exist externally"), HttpStatus.BAD_REQUEST);
+                            "Please enter the correct recipient."), HttpStatus.BAD_REQUEST);
                 }
             }
         }
@@ -160,11 +159,11 @@ public class MailServerService
     public ArrayList<DisplayOutboxEmail> checkOutbox(UUID primaryKey)
     {
         UserInfo userObject = userDatabase.get(primaryKey);
-        ArrayList<Email> emailInbox = userObject.getEmailOutbox();
+        ArrayList<Email> emailOutbox = userObject.getEmailOutbox();
 
         ArrayList<DisplayOutboxEmail> emailDisplay = new ArrayList<>();
 
-        Iterator iterator = emailInbox.iterator();
+        Iterator iterator = emailOutbox.iterator();
         while (iterator.hasNext()) {
             Email tempEmail = (Email)iterator.next();
             emailDisplay.add(DisplayOutboxEmail.builder()

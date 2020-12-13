@@ -1,15 +1,23 @@
 package com.example.mailserver.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.ArrayList;
 
+@ApiModel
 @Data
 public class UserInfo
 {
+    @ApiModelProperty
     private String userName;
+    @ApiModelProperty
     private String password;
+    @JsonIgnore // Makes this completely ignored when converted from code to JSON. Negative: cannot ever use this as a response body or request body.
     private ArrayList<Email> emailInbox;
+    @JsonIgnore
     private ArrayList<Email> emailOutbox;
 
     public UserInfo(String userName, String password)

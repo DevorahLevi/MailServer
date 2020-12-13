@@ -2,6 +2,7 @@ package com.example.mailserver.controller;
 
 import com.example.mailserver.model.*;
 import com.example.mailserver.service.MailServerService;
+import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +15,16 @@ public class MailServerController
 {
     private final MailServerService mailServerService;
 
+    // To see generated documentation, go to: http://localhost:8080/swagger-ui.html
+    @ApiOperation(notes = "Test notes.", value = "This is a test note.") // Adds a note to your API endpoint method documentation
+    @ApiResponses(value = {@ApiResponse(code = 200,
+                                        message = "OK",
+                                        response = String.class,
+                                        examples = @Example (value = @ExampleProperty(mediaType = "UUID", value = "1234-1234-12345678"))),
+                            @ApiResponse(code = 401,
+                                        message = "Unauthorized",
+                                        response = String.class)
+    }) // Sets the responses for the API endpoint method documentation
     @PostMapping("/login")
     public Object login(@RequestBody UserInfo userInfo)
     {

@@ -3,6 +3,7 @@ package com.example.mailserver.service;
 import com.example.mailserver.config.ExternalMailConfiguration;
 import com.example.mailserver.config.FeatureSwitchReceiveExternalMailConfiguration;
 import com.example.mailserver.config.FeatureSwitchSendExternalMailConfiguration;
+import com.example.mailserver.helper.MailServerServiceHelper;
 import com.example.mailserver.model.*;
 import com.example.mailserver.utils.ExternalUsers;
 import com.example.mailserver.utils.Users;
@@ -26,6 +27,7 @@ public class MailServerService
     private final ExternalMailConfiguration externalMailConfiguration;
 
     private final RestTemplate restTemplate;
+    private final MailServerServiceHelper mailServerServiceHelper;
 
     public Object inboxLogin(UserInfo userInfo)
     {
@@ -35,7 +37,7 @@ public class MailServerService
     public Object inboxLogin(String userName, String password)
     {
         ResponseEntity<String> responseEntity;
-        UUID userUUID = checkUserNameExists(userName);
+        UUID userUUID = mailServerServiceHelper.checkUserNameExists(userName, userDatabase);
 
         if (userUUID != null) {
             if(password.equals(userDatabase.get(userUUID).getPassword())) {
@@ -60,7 +62,7 @@ public class MailServerService
     {
         ResponseEntity<String> emailSent;
 
-        UUID recipientUUID = checkUserNameExists(recipient);
+        UUID recipientUUID = mailServerServiceHelper.checkUserNameExists(recipient, userDatabase);
         if (recipientUUID != null && userDatabase.containsKey(sender)) {
             UserInfo recipientObject = userDatabase.get(recipientUUID);
             UserInfo senderObject = userDatabase.get(sender);
@@ -95,20 +97,7 @@ public class MailServerService
 
 
 
-    private UUID checkUserNameExists(String userName)
-    {
-        UUID userPrimaryKey = null;
-        Iterator userDatabaseIterator = userDatabase.entrySet().iterator();
 
-        while (userDatabaseIterator.hasNext()) {
-            Map.Entry mapElement = (Map.Entry)userDatabaseIterator.next();
-            UserInfo tempUserInfo = (UserInfo) mapElement.getValue();
-            if (userName.equals(tempUserInfo.getUserName())) {
-                userPrimaryKey = (UUID)mapElement.getKey();
-            }
-        }
-        return userPrimaryKey;
-    }
 
 
 
@@ -196,7 +185,7 @@ public class MailServerService
             responseEntity = new ResponseEntity<>("Sorry, this service is not available right now. Please try again later.",
                                                             HttpStatus.SERVICE_UNAVAILABLE);
         } else {
-            UUID recipientUUID = checkUserNameExists(recipient); // check if recipient exists on our server
+            UUID recipientUUID = mailServerServiceHelper.checkUserNameExists(recipient, userDatabase); // check if recipient exists on our server
 
             if (recipientUUID != null) { //recipient exists, then
                 if (!ExternalUsers.externalUserDatabase.containsKey(sender)) {

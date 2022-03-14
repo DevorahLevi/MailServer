@@ -1,70 +1,86 @@
-package com.example.mailserver.controller;
-
-import com.example.mailserver.config.ExternalMailConfiguration;
-import com.example.mailserver.config.FeatureSwitchReceiveExternalMailConfiguration;
-import com.example.mailserver.model.GetUUID;
-import com.example.mailserver.model.UserInfo;
-import com.example.mailserver.service.MailServerService;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.security.Key;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-@ExtendWith(MockitoExtension.class) // or @RunWith(MockitoJUnitRunner.class) Test is written the same either way.
-public class MailServerControllerTest
-{
-    @Mock
-    private MailServerService mockMailServerService;
-
-    @Mock
-    private FeatureSwitchReceiveExternalMailConfiguration featureSwitchConfiguration;
-
-
-    @InjectMocks
-    private MailServerController mailServerController;
-
-//     ** Notes: in Unit testing',
-//            o use 'when' statements to do your setup
-//            o use verify' statements to confirm that your code is actually being used
-//            o use 'assert' statements to confirm that the results of your code are what you expect them to be.
+//package com.example.mailserver.controller;
 //
-//     ** Have to mock all of our dependencies (i.e. in this case, emailService, externalMailConfiguration and featureSwitchConfiguration, restTemplate).
-//     ** Testing: have to test all possible outcomes of your code.
-//          i.e. For login method:
-//           1. positive situation: user gives email and it logs in
-//           2. emailService.login throws a HttpClientErrorException
-//           3. featureSwitch is false and a Service Unavailable is thrown
-
-
-
-
+//import com.example.mailserver.oldFiles.model.*;
+//import com.example.mailserver.oldFiles.MailServerController;
+//import com.example.mailserver.oldFiles.MailServerService;
+//import org.junit.jupiter.api.Test;
+//import org.junit.jupiter.api.extension.ExtendWith;
+//import org.mockito.InjectMocks;
+//import org.mockito.Mock;
+//import org.mockito.junit.jupiter.MockitoExtension;
+//import org.springframework.http.HttpStatus;
+//import org.springframework.http.ResponseEntity;
+//
+//import java.util.List;
+//import java.util.UUID;
+//
+//import static java.util.Collections.singletonList;
+//import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+//import static org.mockito.ArgumentMatchers.any;
+//import static org.mockito.ArgumentMatchers.anyString;
+//import static org.mockito.Mockito.verify;
+//import static org.mockito.Mockito.when;
+//
+//@ExtendWith(MockitoExtension.class)
+//public class MailServerControllerTest {
+//
+//    @Mock
+//    private MailServerService mailServerService;
+//
+//    @InjectMocks
+//    private MailServerController subject;
+//
 //    @Test
-//    public void login_returnSuccessWhenEmailIsTurnedOn_andLoginIsSuccessful()
-//    {
-//        GetUUID key = getUUID.builder().
-//                primaryKey(UUID.randomUUID())
-//                .build();
-//        when(featureSwitchConfiguration.isEmailUp().thenReturn(true));
-//        when(mockEmailService.login(any(UserInfo.class))).thenReturn()
+//    public void sendEmail() {
+//        UIEmail uiEmail = UIEmail.builder().build();
+//        ResponseEntity<String> expected = ResponseEntity.status(HttpStatus.OK).body("body");
+//
+//        when(mailServerService.sendEmail(any(UIEmail.class))).thenReturn(expected);
+//
+//        ResponseEntity<String> actual = subject.sendEmail(uiEmail);
+//
+//        verify(mailServerService).sendEmail(uiEmail);
+//        assertThat(actual).isEqualTo(expected);
 //    }
-
-    @Test // one standard for naming tests: functionName_whatItDoes_whenWhatIsPassedIntoIt()
-    public void login_shouldCallServiceAndReturnItsResults()
-    {
-        when(mockMailServerService.inboxLogin(any(UserInfo.class))).thenReturn("Logged in.");
-        Object actual = mailServerController.login(new UserInfo("DevorahLevi", "password1"));
-        verify(mockMailServerService).inboxLogin(eq(new UserInfo("DevorahLevi", "password1")));
-        String expected = "Logged in.";
-        assertThat(actual).isEqualTo(expected);
-    }
-
-}
+//
+//    @Test
+//    public void checkInbox() {
+//        UUID userId = UUID.randomUUID();
+//        DisplayInboxEmail displayInboxEmail = DisplayInboxEmail.builder().build();
+//        List<DisplayInboxEmail> expected = singletonList(displayInboxEmail);
+//
+//        when(mailServerService.checkInbox(any(UUID.class))).thenReturn(expected);
+//
+//        List<DisplayInboxEmail> actual = subject.checkInbox(userId);
+//
+//        verify(mailServerService).checkInbox(userId);
+//        assertThat(actual).isEqualTo(expected);
+//    }
+//
+//    @Test
+//    public void checkOutbox() {
+//        UUID userId = UUID.randomUUID();
+//        DisplayOutboxEmail displayOutboxEmail = DisplayOutboxEmail.builder().build();
+//        List<DisplayOutboxEmail> expected = singletonList(displayOutboxEmail);
+//
+//        when(mailServerService.checkOutbox(any(UUID.class))).thenReturn(expected);
+//
+//        List<DisplayOutboxEmail> actual = subject.checkOutbox(userId);
+//
+//        verify(mailServerService).checkOutbox(userId);
+//        assertThat(actual).isEqualTo(expected);
+//    }
+//
+//    @Test
+//    public void receiveExternalMail() {
+//        ExternalEmail externalEmail = ExternalEmail.builder().build();
+//        ResponseEntity<String> expected = ResponseEntity.status(HttpStatus.OK).body("body");
+//
+//        when(mailServerService.receiveExternalMail(any(ExternalEmail.class), anyString())).thenReturn(expected);
+//
+//        ResponseEntity<String> actual = subject.receiveExternalMail(externalEmail, "apiKey");
+//
+//        verify(mailServerService).receiveExternalMail(externalEmail, "apiKey");
+//        assertThat(actual).isEqualTo(expected);
+//    }
+//}

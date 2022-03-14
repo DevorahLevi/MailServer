@@ -1,18 +1,25 @@
-# Tabs are important. They imply nested calls. i.e. port is server.port
-# sever.port is something that spring knows to look for. Not there without Spring. Default server.port is 8080
-# application files are good for being able to inject different variables into your code at runtime, instead of writing it into your code
-
 server:
   port: 8080
+
+spring:
+  # All queries executed by the database will be printed to the console.
+  jpa:
+    show-sql: true
+  # See table in the in-memory database by launching h2 console in the browser
+  # localhost:8080/h2-console (change JDBC URL to jdbc:h2:mem:testdb)
+  h2:
+    console:
+      enabled: true
+  # Reconfiguring H2 Console
+  datasource:
+    url: "jdbc:h2:mem:testdb"
+    username: "devorahMailServerUsername"
+    password: "devorahMailServerPassword"
+
+# Used for Creating Database Tables in Spring Boot Version > 2.5.0
+#spring.jpa.defer-datasource-initialization=true
 
 mail:
   external:
     ip: "https://ti-timeserver.herokuapp.com/api/v1/email/receiveExternalMail"
     apiKey: "letMeIn"
-
-# allows you to boot your app very quickly and turn on/off different features without having to rebuild your app - only need to reboot
-feature-switch:
-  receive-external-mail:
-    receive-external-mail-on: true
-  send-external-mail:
-    send-external-mail-on: true

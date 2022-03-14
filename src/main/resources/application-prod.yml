@@ -1,11 +1,3 @@
 mail:
   external:
     ip: prodIP
-
-# purpose of using profiles (i.e. -prod) for configuration profiles is that you can point to the correct server depending on what environment you're in
-# prod = production
-# If you use a non-prod application configuration file, you can test things out without actually changing any data (i.e. make payments and it looks
-#     like you are making a payment and the app works properly but doesnt actually make a payment.
-# When ready to deploy, you point from the dev (development) config/environment to the prod (production) config/environment
-# Different companies have different number of environments. Have to make sure you're pointing to the right place thru the configs
-# Usually using the same jar across all of the applications.

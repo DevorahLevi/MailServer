@@ -9,8 +9,7 @@ import org.springframework.context.annotation.Configuration;
 @RequiredArgsConstructor
 @Configuration
 @ConfigurationProperties("mail.external")
-public class ExternalMailConfiguration
-{
-    private String ip; //have to call this the same as what you call it in your applications.yml file
+public class ExternalMailConfiguration {
+    private String ip;
     private String apiKey;
 }

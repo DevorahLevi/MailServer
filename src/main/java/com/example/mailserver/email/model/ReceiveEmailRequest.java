@@ -1,4 +1,4 @@
-package com.example.mailserver.oldFiles;
+package com.example.mailserver.email.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ExternalEmail {
-    private String senderUsername;
-    private String recipientUsername;
+public class ReceiveEmailRequest {
+    private String sender;
+    private String recipient;
     private String messageContent;
 }

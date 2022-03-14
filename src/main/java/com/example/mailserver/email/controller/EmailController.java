@@ -1,7 +1,9 @@
 package com.example.mailserver.email.controller;
 
-import com.example.mailserver.email.service.EmailService;
 import com.example.mailserver.email.model.EmailDTO;
+import com.example.mailserver.email.model.ReceiveEmailRequest;
+import com.example.mailserver.email.model.SendEmailRequest;
+import com.example.mailserver.email.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,20 +28,12 @@ public class EmailController {
     }
 
     @PostMapping("/send")
-    public void sendEmail() {
-
+    public void sendEmail(@RequestBody SendEmailRequest sendEmailRequest) {
+        emailService.sendEmail(sendEmailRequest);
     }
 
     @PostMapping("/receive")
-    public void receiveEmail() {
-
+    public void receiveEmail(@RequestBody ReceiveEmailRequest receiveEmailRequest) {
+        emailService.receiveEmail(receiveEmailRequest);
     }
-
-    /*
-Homework Assignment:
-API endpoint that can receive external mail and puts it into the correct person's inbox
-Send function (might not need a new endpoint), just needs to have awareness that if the 'to' is not in your local users, you have to send it externally
-(IP) Address of external server must be in the configurations
-Ability to send externally must have a feature switch around it to turn it on or off
- */
 }

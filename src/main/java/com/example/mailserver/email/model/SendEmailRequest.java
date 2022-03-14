@@ -1,4 +1,4 @@
-package com.example.mailserver.oldFiles;
+package com.example.mailserver.email.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UIEmail { // todo -- rename this to SendEmailRequest
+public class SendEmailRequest {
     private UUID sender;
     private String recipient;
     private String messageContent;

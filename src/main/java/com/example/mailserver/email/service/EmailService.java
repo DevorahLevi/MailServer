@@ -2,6 +2,8 @@ package com.example.mailserver.email.service;
 
 import com.example.mailserver.email.converter.EmailToEmailDTOConverter;
 import com.example.mailserver.email.entity.Email;
+import com.example.mailserver.email.model.ReceiveEmailRequest;
+import com.example.mailserver.email.model.SendEmailRequest;
 import com.example.mailserver.email.repository.EmailRepository;
 import com.example.mailserver.email.model.EmailDTO;
 import com.example.mailserver.user.entity.User;
@@ -47,4 +49,15 @@ public class EmailService {
             throw e;
         }
     }
+
+    public void sendEmail(SendEmailRequest sendEmailRequest) {
+
+    }
+
+    public void receiveEmail(ReceiveEmailRequest receiveEmailRequest) {
+
+    }
+
+    // When receiving an email, we need to check if the recipient on the email exists in our system
+    // When sending an email, we check if the recipient is a local user. If so, save directly. If not, send it externally to configured IP address of external server
 }

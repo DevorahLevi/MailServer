@@ -1,5 +1,7 @@
 package com.example.mailserver.email.controller;
 
+import com.example.mailserver.email.model.ReceiveEmailRequest;
+import com.example.mailserver.email.model.SendEmailRequest;
 import com.example.mailserver.email.service.EmailService;
 import com.example.mailserver.email.model.EmailDTO;
 import org.junit.jupiter.api.Test;
@@ -54,5 +56,21 @@ public class EmailControllerTest {
 
         verify(emailService).checkOutbox(userID);
         assertThat(actual).isEqualTo(expected);
+    }
+
+    @Test
+    public void sendEmail() {
+        SendEmailRequest sendEmailRequest = SendEmailRequest.builder().build();
+
+        subject.sendEmail(sendEmailRequest);
+        verify(emailService).sendEmail(sendEmailRequest);
+    }
+
+    @Test
+    public void receiveEmail() {
+        ReceiveEmailRequest receiveEmailRequest = ReceiveEmailRequest.builder().build();
+
+        subject.receiveEmail(receiveEmailRequest);
+        verify(emailService).receiveEmail(receiveEmailRequest);
     }
 }

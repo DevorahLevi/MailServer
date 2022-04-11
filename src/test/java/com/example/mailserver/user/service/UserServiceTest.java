@@ -1,9 +1,7 @@
 package com.example.mailserver.user.service;
 
-import com.example.mailserver.user.builder.UserBuilder;
 import com.example.mailserver.user.entity.User;
 import com.example.mailserver.user.repository.UserRepository;
-import com.example.mailserver.validation.ValidationService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -25,13 +23,7 @@ import static org.mockito.Mockito.*;
 public class UserServiceTest {
 
     @Mock
-    UserBuilder userBuilder;
-
-    @Mock
     UserRepository userRepository;
-
-    @Mock
-    ValidationService validationService;
 
     @Spy
     @InjectMocks

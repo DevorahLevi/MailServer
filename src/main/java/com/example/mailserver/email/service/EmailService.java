@@ -32,8 +32,8 @@ public class EmailService {
     private final EmailBuilder emailBuilder;
     private final RestTemplate restTemplate;
     private final EmailRepository emailRepository;
-    private final EmailToEmailDTOConverter emailToEmailDTOConverter;
     private final ExternalMailProperties externalMailProperties;
+    private final EmailToEmailDTOConverter emailToEmailDTOConverter;
 
     public List<EmailDTO> checkInbox(UUID userId) {
         try {

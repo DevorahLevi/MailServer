@@ -1,7 +1,9 @@
 package com.example.mailserver.user.controller;
 
+import com.example.mailserver.user.model.ChangePasswordRequest;
 import com.example.mailserver.user.model.LoginRequest;
 import com.example.mailserver.user.model.CreateUserRequest;
+import com.example.mailserver.user.orchestrator.UserOrchestrator;
 import com.example.mailserver.user.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +25,9 @@ public class UserControllerTest {
     @Mock
     UserService userService;
 
+    @Mock
+    UserOrchestrator userOrchestrator;
+
     @InjectMocks
     UserController subject;
 
@@ -39,13 +44,14 @@ public class UserControllerTest {
     @Test
     public void createNewUser_callsUserService() {
         CreateUserRequest createUserRequest = CreateUserRequest.builder().build();
+        ResponseEntity<String> expectedResponseEntity = ResponseEntity.status(HttpStatus.OK).body("body");
 
-        when(userService.createNewUser(any(CreateUserRequest.class))).thenReturn("userId");
+        when(userOrchestrator.createNewUser(any(CreateUserRequest.class))).thenReturn(expectedResponseEntity);
 
-        String actual = subject.createNewUser(createUserRequest);
-        assertThat(actual).isEqualTo("userId");
+        ResponseEntity<String> actual = subject.createNewUser(createUserRequest);
+        assertThat(actual).isEqualTo(expectedResponseEntity);
 
-        verify(userService).createNewUser(createUserRequest);
+        verify(userOrchestrator).createNewUser(createUserRequest);
     }
 
     @Test
@@ -53,11 +59,20 @@ public class UserControllerTest {
         LoginRequest loginRequest = LoginRequest.builder().build();
         ResponseEntity<String> expected = ResponseEntity.status(HttpStatus.OK).body("body");
 
-        when(userService.login(any(LoginRequest.class))).thenReturn(expected);
+        when(userOrchestrator.login(any(LoginRequest.class))).thenReturn(expected);
 
         ResponseEntity<String> actual = subject.login(loginRequest);
         assertThat(actual).isEqualTo(expected);
 
-        verify(userService).login(loginRequest);
+        verify(userOrchestrator).login(loginRequest);
+    }
+
+    @Test
+    public void changePassword() {
+        ChangePasswordRequest changePasswordRequest = ChangePasswordRequest.builder().build();
+
+        subject.changePassword(changePasswordRequest);
+
+        verify(userOrchestrator).changePassword(changePasswordRequest);
     }
 }

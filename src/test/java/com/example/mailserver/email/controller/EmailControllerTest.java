@@ -1,9 +1,11 @@
 package com.example.mailserver.email.controller;
 
+import com.example.mailserver.config.exception.InvalidApiKeyException;
+import com.example.mailserver.email.model.EmailDTO;
 import com.example.mailserver.email.model.ReceiveEmailRequest;
 import com.example.mailserver.email.model.SendEmailRequest;
 import com.example.mailserver.email.service.EmailService;
-import com.example.mailserver.email.model.EmailDTO;
+import com.example.mailserver.validation.ValidationService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,6 +26,9 @@ public class EmailControllerTest {
 
     @Mock
     EmailService emailService;
+
+    @Mock
+    ValidationService validationService;
 
     @InjectMocks
     EmailController subject;
@@ -67,10 +72,12 @@ public class EmailControllerTest {
     }
 
     @Test
-    public void receiveEmail() {
+    public void receiveEmail() throws InvalidApiKeyException {
         ReceiveEmailRequest receiveEmailRequest = ReceiveEmailRequest.builder().build();
 
-        subject.receiveEmail(receiveEmailRequest);
+        subject.receiveEmail(receiveEmailRequest, "apiKey");
+
+        verify(validationService).validateApiKey("apiKey");
         verify(emailService).receiveEmail(receiveEmailRequest);
     }
 }

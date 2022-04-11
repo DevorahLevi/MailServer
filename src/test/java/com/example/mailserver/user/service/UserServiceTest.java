@@ -1,27 +1,25 @@
 package com.example.mailserver.user.service;
 
-import com.example.mailserver.user.model.LoginRequest;
 import com.example.mailserver.user.builder.UserBuilder;
 import com.example.mailserver.user.entity.User;
-import com.example.mailserver.user.model.CreateUserRequest;
 import com.example.mailserver.user.repository.UserRepository;
+import com.example.mailserver.validation.ValidationService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.ResponseEntity;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
-import static org.springframework.http.HttpStatus.OK;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -31,6 +29,9 @@ public class UserServiceTest {
 
     @Mock
     UserRepository userRepository;
+
+    @Mock
+    ValidationService validationService;
 
     @Spy
     @InjectMocks
@@ -52,127 +53,75 @@ public class UserServiceTest {
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
 
         boolean actual = subject.userExists("username");
-        assertThat(actual).isFalse();
 
         verify(userRepository).findByUsername("username");
+        assertThat(actual).isFalse();
     }
 
     @Test
-    public void findUserById() {
+    public void findById() {
         UUID userId = UUID.randomUUID();
         User expectedUser = User.builder().build();
 
         when(userRepository.findById(any(UUID.class))).thenReturn(Optional.of(expectedUser));
 
-        User actual = subject.findUserById(userId);
+        User actual = subject.findById(userId);
 
         verify(userRepository).findById(userId);
         assertThat(actual).isEqualTo(expectedUser);
     }
 
     @Test
-    public void createNewUser_buildsAndSavesNewUser() {
-        CreateUserRequest createUserRequest = CreateUserRequest.builder().build();
+    public void findByUsername() {
+        User expectedUser = User.builder().build();
+
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(expectedUser));
+
+        User actual = subject.findByUsername("username");
+
+        verify(userRepository).findByUsername("username");
+        assertThat(actual).isEqualTo(expectedUser);
+    }
+
+    @Test
+    public void save() {
+        User userToBeSaved = User.builder().build();
+        User expectedUser = User.builder().build();
+
+        when(userRepository.save(any(User.class))).thenReturn(expectedUser);
+
+        subject.save(userToBeSaved);
+
+        verify(userRepository).save(userToBeSaved);
+    }
+
+    @Test
+    public void updatePassword() {
+        UUID userId = UUID.randomUUID();
         User user = User.builder().build();
-        User savedUser = User.builder().id(UUID.randomUUID()).build();
-
-        when(userBuilder.build(any(CreateUserRequest.class))).thenReturn(user);
-        when(userRepository.save(any(User.class))).thenReturn(savedUser);
-
-        String actual = subject.createNewUser(createUserRequest);
-        String expected = savedUser.getId().toString();
-        assertThat(actual).isEqualTo(expected);
-
-        verify(userBuilder).build(createUserRequest);
-        verify(userRepository).save(user);
-    }
-
-    @Test
-    public void login_validatesUsernameAndPassword() {
-        LoginRequest loginRequest = LoginRequest.builder()
-                .userName("username")
+        User updatedUser = User.builder()
                 .password("password")
                 .build();
 
-        User user = User.builder()
-                .id(UUID.randomUUID())
-                .password("password")
-                .build();
+        when(userRepository.findById(any(UUID.class))).thenReturn(Optional.of(user));
 
-        ResponseEntity<String> expected = ResponseEntity.status(OK).body(user.getId().toString());
+        subject.updatePassword(userId.toString(), "password");
 
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
-        doReturn(true).when(subject).validPassword(any(User.class), anyString());
-
-        ResponseEntity<String> actual = subject.login(loginRequest);
-        assertThat(actual).isEqualTo(expected);
-
-        verify(userRepository).findByUsername("username");
-        verify(subject).validPassword(user, "password");
+        verify(userRepository).findById(userId);
+        verify(userRepository).save(updatedUser);
     }
 
     @Test
-    public void login_throwsEntityNotFoundException_whenUserDoesNotExist() {
-        LoginRequest loginRequest = LoginRequest.builder()
-                .userName("username")
-                .build();
+    public void updatePassword_throwsEntityNotFoundException() {
+        UUID userId = UUID.randomUUID();
+        when(userRepository.findById(any(UUID.class))).thenReturn(Optional.empty());
 
-        ResponseEntity<String> expected = ResponseEntity
-                .status(UNAUTHORIZED)
-                .body("Credentials are not registered. Please create an account.");
-
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
-
-        ResponseEntity<String> actual = subject.login(loginRequest);
-        assertThat(actual).isEqualTo(expected);
-
-        verify(userRepository).findByUsername("username");
-        verify(subject, never()).validPassword(any(User.class), anyString());
-    }
-
-    @Test
-    public void login_throwsInvalidCredentialsException_whenPasswordIsInvalid() {
-        LoginRequest loginRequest = LoginRequest.builder()
-                .userName("username")
-                .password("wrongPassword")
-                .build();
-
-        User user = User.builder()
-                .id(UUID.randomUUID())
-                .password("password")
-                .build();
-
-        ResponseEntity<String> expected = ResponseEntity
-                .status(UNAUTHORIZED)
-                .body("Invalid credentials. Please try again.");
-
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
-        doReturn(false).when(subject).validPassword(any(User.class), anyString());
-
-        ResponseEntity<String> actual = subject.login(loginRequest);
-        assertThat(actual).isEqualTo(expected);
-
-        verify(userRepository).findByUsername("username");
-        verify(subject).validPassword(user, "wrongPassword");
-    }
-
-    @Test
-    public void validPassword_returnsTrue_whenPasswordMatches() {
-        User user = User.builder()
-                .password("password")
-                .build();
-
-        boolean actual = subject.validPassword(user, "password");
-        assertThat(actual).isTrue();
-    }
-
-    @Test
-    public void validPassword_returnsFalse_whenPasswordDoesNotMatch() {
-        User user = User.builder()
-                .password("password")
-                .build();
-
-        boolean actual = subject.validPassword(user, "wrongPassword");
-        assertThat(actual).isFalse();
+        try {
+            subject.updatePassword(userId.toString(), "password");
+            fail("Expected exception not thrown");
+        } catch (EntityNotFoundException e) {
+            verify(userRepository).findById(userId);
+            verifyNoMoreInteractions(userRepository);
+        }
     }
 }

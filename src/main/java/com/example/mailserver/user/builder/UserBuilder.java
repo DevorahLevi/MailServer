@@ -4,7 +4,7 @@ import com.example.mailserver.user.entity.User;
 import com.example.mailserver.user.model.CreateUserRequest;
 import org.springframework.stereotype.Component;
 
-import static com.example.mailserver.constants.UserStatusConstants.USER_CREATED;
+import static com.example.mailserver.config.constants.UserStatusConstants.USER_CREATED;
 
 @Component
 public class UserBuilder {

@@ -1,9 +1,11 @@
 package com.example.mailserver.email.controller;
 
+import com.example.mailserver.config.exception.InvalidApiKeyException;
 import com.example.mailserver.email.model.EmailDTO;
 import com.example.mailserver.email.model.ReceiveEmailRequest;
 import com.example.mailserver.email.model.SendEmailRequest;
 import com.example.mailserver.email.service.EmailService;
+import com.example.mailserver.validation.ValidationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +18,7 @@ import java.util.UUID;
 public class EmailController {
 
     private final EmailService emailService;
+    private final ValidationService validationService;
 
     @GetMapping("/inbox/{userId}")
     public List<EmailDTO> checkInbox(@PathVariable UUID userId) {
@@ -33,7 +36,8 @@ public class EmailController {
     }
 
     @PostMapping("/receive")
-    public void receiveEmail(@RequestBody ReceiveEmailRequest receiveEmailRequest) {
+    public void receiveEmail(@RequestBody ReceiveEmailRequest receiveEmailRequest, @RequestHeader("API-KEY") String apiKey) throws InvalidApiKeyException {
+        validationService.validateApiKey(apiKey);
         emailService.receiveEmail(receiveEmailRequest);
     }
 }

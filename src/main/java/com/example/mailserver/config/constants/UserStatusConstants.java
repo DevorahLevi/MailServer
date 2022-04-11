@@ -1,4 +1,4 @@
-package com.example.mailserver.constants;
+package com.example.mailserver.config.constants;
 
 public class UserStatusConstants {
 

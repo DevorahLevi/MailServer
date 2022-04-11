@@ -1,4 +1,4 @@
-package com.example.mailserver.config;
+package com.example.mailserver.config.properties;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -6,10 +6,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 @Data
-@RequiredArgsConstructor
 @Configuration
-@ConfigurationProperties("mail.external")
-public class ExternalMailConfiguration {
+@ConfigurationProperties("external")
+public class ExternalMailProperties {
     private String ip;
     private String apiKey;
 }

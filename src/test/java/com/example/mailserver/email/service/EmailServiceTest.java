@@ -6,7 +6,7 @@ import com.example.mailserver.email.converter.EmailToEmailDTOConverter;
 import com.example.mailserver.email.entity.Email;
 import com.example.mailserver.email.model.EmailDTO;
 import com.example.mailserver.email.model.ReceiveEmailRequest;
-import com.example.mailserver.email.model.SendEmailRequest;
+import com.example.mailserver.email.model.SaveDraftRequest;
 import com.example.mailserver.email.repository.EmailRepository;
 import com.example.mailserver.user.entity.User;
 import com.example.mailserver.user.service.UserService;
@@ -142,7 +142,7 @@ public class EmailServiceTest {
     @Test
     public void sendEmail_recipientIsLocalUser() {
         UUID senderId = UUID.randomUUID();
-        SendEmailRequest sendEmailRequest = SendEmailRequest.builder()
+        SaveDraftRequest saveDraftRequest = SaveDraftRequest.builder()
                 .sender(senderId)
                 .recipient("recipient")
                 .messageContent("messageContent")
@@ -155,7 +155,7 @@ public class EmailServiceTest {
         when(emailBuilder.build(anyString(), anyString(), anyString())).thenReturn(email);
         when(userService.userExists(anyString())).thenReturn(true);
 
-        subject.sendEmail(sendEmailRequest);
+        subject.sendEmail(saveDraftRequest);
 
         verify(userService).findById(senderId);
         verify(emailBuilder).build("username", "recipient", "messageContent");
@@ -166,7 +166,7 @@ public class EmailServiceTest {
     @Test
     public void sendEmail_recipientIsExternal() {
         UUID senderId = UUID.randomUUID();
-        SendEmailRequest sendEmailRequest = SendEmailRequest.builder()
+        SaveDraftRequest saveDraftRequest = SaveDraftRequest.builder()
                 .sender(senderId)
                 .recipient("recipient")
                 .messageContent("messageContent")
@@ -185,7 +185,7 @@ public class EmailServiceTest {
         when(externalMailProperties.getIp()).thenReturn("ip");
         when(externalMailProperties.getApiKey()).thenReturn("apiKey");
 
-        subject.sendEmail(sendEmailRequest);
+        subject.sendEmail(saveDraftRequest);
 
         verify(userService).findById(senderId);
         verify(emailBuilder).build("username", "recipient", "messageContent");

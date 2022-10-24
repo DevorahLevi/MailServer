@@ -27,14 +27,19 @@ public class Email {
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID id;
 
-    @Column(name = "MESSAGE_CONTENT")
-    private String messageContent;
-
     @Column(name = "RECIPIENT")
     private String recipient;
 
     @Column(name = "SENDER")
     private String sender;
+
+    @Column(name = "MESSAGE_CONTENT")
+    private String messageContent;
+
+    @Column(name = "DRAFT")
+    // todo -- can we set this a default value? If not, what is the default value of a boolean
+    // todo -- update migration 2 to add this column to the DB
+    private boolean draft;
 
     @Column(name = "CREATED_DATE")
     @CreationTimestamp

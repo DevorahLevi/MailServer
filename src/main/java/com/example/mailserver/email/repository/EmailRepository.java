@@ -10,7 +10,7 @@ import java.util.UUID;
 @Repository
 public interface EmailRepository extends JpaRepository<Email, UUID> {
 
-    List<Email> findAllBySenderOrderByCreatedDateDesc(String sender);
+    List<Email> findAllBySenderAndDraftOrderByCreatedDateDesc(String sender, boolean draft);
 
-    List<Email> findAllByRecipientOrderByCreatedDateDesc(String sender);
+    List<Email> findAllByRecipientAndDraftOrderByCreatedDateDesc(String sender, boolean draft);
 }

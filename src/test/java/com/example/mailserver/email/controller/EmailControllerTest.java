@@ -3,7 +3,7 @@ package com.example.mailserver.email.controller;
 import com.example.mailserver.config.exception.InvalidApiKeyException;
 import com.example.mailserver.email.model.EmailDTO;
 import com.example.mailserver.email.model.ReceiveEmailRequest;
-import com.example.mailserver.email.model.SendEmailRequest;
+import com.example.mailserver.email.model.SaveDraftRequest;
 import com.example.mailserver.email.service.EmailService;
 import com.example.mailserver.validation.ValidationService;
 import org.junit.jupiter.api.Test;
@@ -65,10 +65,10 @@ public class EmailControllerTest {
 
     @Test
     public void sendEmail() {
-        SendEmailRequest sendEmailRequest = SendEmailRequest.builder().build();
+        SaveDraftRequest saveDraftRequest = SaveDraftRequest.builder().build();
 
-        subject.sendEmail(sendEmailRequest);
-        verify(emailService).sendEmail(sendEmailRequest);
+        subject.sendEmail(saveDraftRequest);
+        verify(emailService).sendEmail(saveDraftRequest);
     }
 
     @Test

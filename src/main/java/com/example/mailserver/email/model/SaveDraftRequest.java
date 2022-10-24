@@ -11,7 +11,8 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SendEmailRequest {
+public class SaveDraftRequest {
+
     private UUID sender;
     private String recipient;
     private String messageContent;

@@ -6,7 +6,7 @@ import com.example.mailserver.email.converter.EmailToEmailDTOConverter;
 import com.example.mailserver.email.entity.Email;
 import com.example.mailserver.email.model.EmailDTO;
 import com.example.mailserver.email.model.ReceiveEmailRequest;
-import com.example.mailserver.email.model.SendEmailRequest;
+import com.example.mailserver.email.model.SaveDraftRequest;
 import com.example.mailserver.email.repository.EmailRepository;
 import com.example.mailserver.user.entity.User;
 import com.example.mailserver.user.service.UserService;
@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static org.springframework.util.ObjectUtils.isEmpty;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -38,7 +40,7 @@ public class EmailService {
     public List<EmailDTO> checkInbox(UUID userId) {
         try {
             User user = userService.findById(userId);
-            List<Email> emails = emailRepository.findAllByRecipientOrderByCreatedDateDesc(user.getUsername());
+            List<Email> emails = emailRepository.findAllByRecipientAndDraftOrderByCreatedDateDesc(user.getUsername(), false);
             return emails.stream().map(emailToEmailDTOConverter::convert).collect(Collectors.toList());
 
         } catch (EntityNotFoundException e) {
@@ -50,7 +52,7 @@ public class EmailService {
     public List<EmailDTO> checkOutbox(UUID userId) {
         try {
             User user = userService.findById(userId);
-            List<Email> emails = emailRepository.findAllBySenderOrderByCreatedDateDesc(user.getUsername());
+            List<Email> emails = emailRepository.findAllBySenderAndDraftOrderByCreatedDateDesc(user.getUsername(), false);
             return emails.stream().map(emailToEmailDTOConverter::convert).collect(Collectors.toList());
 
         } catch (EntityNotFoundException e) {
@@ -59,19 +61,36 @@ public class EmailService {
         }
     }
 
-    public void sendEmail(SendEmailRequest request) {
-        User sender = userService.findById(request.getSender());
-        Email email = emailBuilder.build(sender.getUsername(), request.getRecipient(), request.getMessageContent());
+    // todo -- test
+    public void saveDraft(SaveDraftRequest saveDraftRequest) {
+        User sender = userService.findById(saveDraftRequest.getSender());
 
-        if (userService.userExists(request.getRecipient())) {
-            emailRepository.save(email);
+        if (isEmpty(saveDraftRequest.getDraftId())) {
+            // save new draft, return the new draft's ID
         } else {
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("API-KEY", externalMailProperties.getApiKey());
-            HttpEntity<Email> httpEntity = new HttpEntity<>(email, headers);
 
-            restTemplate.exchange(externalMailProperties.getIp(), HttpMethod.POST, httpEntity, Void.class);
         }
+
+        // find user, get ID for sender
+        // check if already a draft started - maybe we need sep methods for save and update
+        // will need to take in all other optional fields, we will need a builder with null checks
+        // save draft
+    }
+
+    public void sendEmail(SaveDraftRequest request) {
+//        User sender = userService.findById(request.getSender());
+        // todo -- this builder will no longer be used here
+//        Email email = emailBuilder.build(sender.getUsername(), request.getRecipient(), request.getMessageContent());
+//
+//        if (userService.userExists(request.getRecipient())) {
+//            emailRepository.save(email);
+//        } else {
+//            HttpHeaders headers = new HttpHeaders();
+//            headers.add("API-KEY", externalMailProperties.getApiKey());
+//            HttpEntity<Email> httpEntity = new HttpEntity<>(email, headers);
+//
+//            restTemplate.exchange(externalMailProperties.getIp(), HttpMethod.POST, httpEntity, Void.class);
+//        }
     }
 
     public void receiveEmail(ReceiveEmailRequest request) {
@@ -79,8 +98,6 @@ public class EmailService {
             throw new EntityNotFoundException(String.format("No user found to receive email for username: %s", request.getRecipient()));
         }
 
-        emailRepository.save(emailBuilder.build(request.getSender(), request.getRecipient(), request.getMessageContent()));
+        emailRepository.save(emailBuilder.build(request.getSender(), request.getRecipient(), request.getMessageContent(), false));
     }
-
-    // TODO -- add Integration Tests for all endpoints
 }

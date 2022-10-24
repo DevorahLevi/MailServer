@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("api/v1/mail/user")
 public class UserController {
 
+    // todo -- add Integration Tests for all endpoints
     private final UserService userService;
     private final UserOrchestrator userOrchestrator;
 

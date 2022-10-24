@@ -2,6 +2,8 @@ server:
   port: 8080
 
 spring:
+  profiles:
+    active: local
   # All queries executed by the database will be printed to the console.
   jpa:
     show-sql: true

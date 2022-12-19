@@ -1,7 +1,7 @@
-package com.example.mailserver.email.converter;
+package com.example.mailserver.message.converter;
 
-import com.example.mailserver.email.entity.Email;
-import com.example.mailserver.email.model.EmailDTO;
+import com.example.mailserver.message.entity.Message;
+import com.example.mailserver.message.model.MessageDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -12,29 +12,29 @@ import java.util.Date;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @ExtendWith(MockitoExtension.class)
-public class EmailToEmailDTOConverterTest {
+public class MessageToMessageDTOConverterTest {
 
     @InjectMocks
-    EmailToEmailDTOConverter subject;
+    MessageToMessageDTOConverter subject;
 
     @Test
     public void convert() {
-        Date createdDate = new Date();
-        EmailDTO expected = EmailDTO.builder()
+        Date updatedDate = new Date();
+        MessageDTO expected = MessageDTO.builder()
                 .recipient("recipient")
                 .sender("sender")
                 .messageContent("messageContent")
-                .createdDate(createdDate)
+                .date(updatedDate)
                 .build();
 
-        Email email = Email.builder()
+        Message message = Message.builder()
                 .recipient("recipient")
                 .sender("sender")
                 .messageContent("messageContent")
-                .createdDate(createdDate)
+                .updatedDate(updatedDate)
                 .build();
 
-        EmailDTO actual = subject.convert(email);
+        MessageDTO actual = subject.convert(message);
         assertThat(actual).isEqualTo(expected);
     }
 }

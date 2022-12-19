@@ -1,4 +1,4 @@
-package com.example.mailserver.email.entity;
+package com.example.mailserver.message.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,13 +18,14 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "EMAIL")
-public class Email {
+@Table(name = "MESSAGE")
+public class Message {
 
     @Id
     @Type(type = "uuid-char")
     @GeneratedValue(strategy = GenerationType.AUTO)
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @Column(name = "ID", nullable = false, updatable = false)
     private UUID id;
 
     @Column(name = "RECIPIENT")
@@ -36,10 +37,8 @@ public class Email {
     @Column(name = "MESSAGE_CONTENT")
     private String messageContent;
 
-    @Column(name = "DRAFT")
-    // todo -- can we set this a default value? If not, what is the default value of a boolean
-    // todo -- update migration 2 to add this column to the DB
-    private boolean draft;
+    @Column(name = "SENT")
+    private boolean sent;
 
     @Column(name = "CREATED_DATE")
     @CreationTimestamp

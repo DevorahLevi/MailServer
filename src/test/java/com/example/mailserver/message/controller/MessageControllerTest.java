@@ -1,6 +1,7 @@
 package com.example.mailserver.message.controller;
 
 import com.example.mailserver.config.exception.InvalidApiKeyException;
+import com.example.mailserver.message.model.DraftMessageDTO;
 import com.example.mailserver.message.model.MessageDTO;
 import com.example.mailserver.message.model.SaveMessageRequest;
 import com.example.mailserver.message.service.MessageService;
@@ -66,12 +67,12 @@ public class MessageControllerTest {
     public void checkDrafts() {
         UUID userID = UUID.randomUUID();
 
-        MessageDTO messageDTO = MessageDTO.builder().build();
-        List<MessageDTO> expected = singletonList(messageDTO);
+        DraftMessageDTO draftMessageDTO = DraftMessageDTO.builder().build();
+        List<DraftMessageDTO> expected = singletonList(draftMessageDTO);
 
         when(messageService.checkDrafts(any(UUID.class))).thenReturn(expected);
 
-        List<MessageDTO> actual = subject.checkDrafts(userID);
+        List<DraftMessageDTO> actual = subject.checkDrafts(userID);
 
         verify(messageService).checkDrafts(userID);
         assertThat(actual).isEqualTo(expected);

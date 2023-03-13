@@ -11,8 +11,9 @@ import java.util.Date;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class MessageDTO {
+public class DraftMessageDTO {
 
+    private String draftMessageId;
     private String sender;
     private String recipient;
     private String messageContent;

@@ -1,6 +1,7 @@
 package com.example.mailserver.message.controller;
 
 import com.example.mailserver.config.exception.InvalidApiKeyException;
+import com.example.mailserver.message.model.DraftMessageDTO;
 import com.example.mailserver.message.model.MessageDTO;
 import com.example.mailserver.message.model.SaveMessageRequest;
 import com.example.mailserver.message.service.MessageService;
@@ -23,6 +24,7 @@ public class MessageController {
     // todo -- update email to allow for multiple recipients, cc recipients, bcc recipients and an email subject
     // todo -- look into implementing javax mail sender - can we utilize that to physically send/receive emails
     //          but still stick to our implementation via DB and saving emails?
+    // todo -- implement reply's to emails, probably will have to save the ID of the 'next' email? and reply emails will all have the parent ID (maybe will also have an order number rather than doing a linked list approach)
 
     private final MessageService messageService;
     private final ValidationService validationService;
@@ -37,10 +39,8 @@ public class MessageController {
         return messageService.checkOutbox(userId);
     }
 
-    // todo -- messageDTO needs to include the ID of the message.
-    //  When they click to view a draft, can start editing and we'll have ID to call the saveMessage endpoint
     @GetMapping("/drafts/{userId}")
-    public List<MessageDTO> checkDrafts(@PathVariable UUID userId) {
+    public List<DraftMessageDTO> checkDrafts(@PathVariable UUID userId) {
         return messageService.checkDrafts(userId);
     }
 

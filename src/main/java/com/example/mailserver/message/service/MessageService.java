@@ -2,8 +2,10 @@ package com.example.mailserver.message.service;
 
 import com.example.mailserver.config.properties.ExternalMailProperties;
 import com.example.mailserver.message.builder.MessageBuilder;
+import com.example.mailserver.message.converter.MessageToDraftMessageDTOConverter;
 import com.example.mailserver.message.converter.MessageToMessageDTOConverter;
 import com.example.mailserver.message.entity.Message;
+import com.example.mailserver.message.model.DraftMessageDTO;
 import com.example.mailserver.message.model.MessageDTO;
 import com.example.mailserver.message.model.SaveMessageRequest;
 import com.example.mailserver.message.repository.MessageRepository;
@@ -35,6 +37,7 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final ExternalMailProperties externalMailProperties;
     private final MessageToMessageDTOConverter messageToMessageDTOConverter;
+    private final MessageToDraftMessageDTOConverter messageToDraftMessageDTOConverter;
 
     public List<MessageDTO> checkInbox(UUID userId) {
         try {
@@ -60,11 +63,11 @@ public class MessageService {
         }
     }
 
-    public List<MessageDTO> checkDrafts(UUID userId) {
+    public List<DraftMessageDTO> checkDrafts(UUID userId) {
         try {
             User user = userService.findById(userId);
             List<Message> messages = messageRepository.findAllBySenderAndSentOrderByCreatedDateDesc(user.getUsername(), false);
-            return messages.stream().map(messageToMessageDTOConverter::convert).collect(Collectors.toList());
+            return messages.stream().map(messageToDraftMessageDTOConverter::convert).collect(Collectors.toList());
 
         } catch (EntityNotFoundException e) {
             log.info(String.format("Failed to find drafts for userID: %s", userId));

@@ -2,8 +2,10 @@ package com.example.mailserver.message.service;
 
 import com.example.mailserver.config.properties.ExternalMailProperties;
 import com.example.mailserver.message.builder.MessageBuilder;
+import com.example.mailserver.message.converter.MessageToDraftMessageDTOConverter;
 import com.example.mailserver.message.converter.MessageToMessageDTOConverter;
 import com.example.mailserver.message.entity.Message;
+import com.example.mailserver.message.model.DraftMessageDTO;
 import com.example.mailserver.message.model.MessageDTO;
 import com.example.mailserver.message.model.SaveMessageRequest;
 import com.example.mailserver.message.repository.MessageRepository;
@@ -49,6 +51,9 @@ public class MessageServiceTest {
 
     @Mock
     MessageToMessageDTOConverter messageToMessageDTOConverter;
+
+    @Mock
+    MessageToDraftMessageDTOConverter messageToDraftMessageDTOConverter;
 
     @Mock
     ExternalMailProperties externalMailProperties;
@@ -151,18 +156,18 @@ public class MessageServiceTest {
         Message message = Message.builder().build();
         List<Message> messageList = singletonList(message);
 
-        MessageDTO messageDTO = MessageDTO.builder().build();
-        List<MessageDTO> expected = singletonList(messageDTO);
+        DraftMessageDTO draftMessageDTO = DraftMessageDTO.builder().build();
+        List<DraftMessageDTO> expected = singletonList(draftMessageDTO);
 
         when(userService.findById(any(UUID.class))).thenReturn(user);
         when(messageRepository.findAllBySenderAndSentOrderByCreatedDateDesc(anyString(), anyBoolean())).thenReturn(messageList);
-        when(messageToMessageDTOConverter.convert(any(Message.class))).thenReturn(messageDTO);
+        when(messageToDraftMessageDTOConverter.convert(any(Message.class))).thenReturn(draftMessageDTO);
 
-        List<MessageDTO> actual = subject.checkDrafts(userId);
+        List<DraftMessageDTO> actual = subject.checkDrafts(userId);
 
         verify(userService).findById(userId);
         verify(messageRepository).findAllBySenderAndSentOrderByCreatedDateDesc("username", false);
-        verify(messageToMessageDTOConverter).convert(message);
+        verify(messageToDraftMessageDTOConverter).convert(message);
 
         assertThat(actual).isEqualTo(expected);
     }
